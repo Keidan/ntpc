@@ -43,7 +43,7 @@ struct Context
     std::uint32_t count = 0;
 };
 /* Private variables --------------------------------------------------------*/
-static const std::vector<struct option> g_longOptions = {
+static const std::vector<option> g_longOptions = {
   {    "help", 0, nullptr, 'h'},
   { "version", 0, nullptr, 'v'},
   { "address", 1, nullptr, 'a'},
@@ -53,6 +53,7 @@ static const std::vector<struct option> g_longOptions = {
   {   "count", 1, nullptr, '1'},
   {   nullptr, 0, nullptr,   0},
 };
+
 static auto g_loopExit = false;
 /* Static forward -----------------------------------------------------------*/
 static auto usage(int32_t xcode) -> void;
@@ -71,7 +72,7 @@ auto main(int argc, char** argv) -> int
 #ifndef _WIN32
   struct sigaction sa;
 
-  std::memset(&sa, 0, sizeof(struct sigaction));
+  std::memset(&sa, 0, sizeof(sigaction));
   sa.sa_handler = &signalHook;
   sigaction(SIGINT, &sa, nullptr);
   sigaction(SIGTERM, &sa, nullptr);
@@ -147,7 +148,7 @@ static void version()
  */
 static auto handleMain(const Context& context) -> int
 {
-  g_loopExit = !context.continuous;
+  g_loopExit = !(context.continuous || 0 != context.count);
   auto ret = EXIT_FAILURE;
   NTPClient client(context.host, context.port);
   client.buildTransport<UDPSocket>();
@@ -156,7 +157,7 @@ static auto handleMain(const Context& context) -> int
   do
   {
     processRefresh(client, loopWait, ret, context);
-    if(0 != context.count && count++ < context.count)
+    if((0 != context.count) && (++count >= context.count))
       g_loopExit = true;
   } while(!g_loopExit);
   return ret;
@@ -304,5 +305,5 @@ static auto handleArguments(const int argc, char** argv, Context& context) -> vo
     usage(EXIT_FAILURE);
   }
   context.port = static_cast<std::uint16_t>(port);
-  context.count = static_cast<std::uint32_t>(count);
+  context.count = count;
 }

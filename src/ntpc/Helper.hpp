@@ -51,7 +51,7 @@ namespace ntpc
           return GetLastError();
         }
 #else
-        struct timeval newTime;
+        timeval newTime;
         newTime.tv_sec = *now;
         newTime.tv_usec = 0;
         if(0 != settimeofday(&newTime, nullptr))
@@ -116,12 +116,11 @@ namespace ntpc
         return static_cast<T>(t);
       }
 
-      static auto toTM(const std::time_t* now) -> struct tm
+      static auto toTM(const std::time_t* now) -> tm
       {
-          struct tm newtime;
+          tm newtime;
 #ifndef _WIN32
-          auto* t = localtime(now);
-          memcpy(&newtime, t, sizeof(newtime));
+          localtime_r(now, &newtime);
 #else
           localtime_s(&newtime, now);
 #endif /* !_WIN32 */

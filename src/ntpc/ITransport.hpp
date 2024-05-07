@@ -60,7 +60,7 @@ namespace ntpc
        * @param[in] size Number of data to write.
        * @retval -1 on error otherwise number of bytes written.
        */
-      virtual auto write(const void* buffer, std::size_t length) -> int = 0;
+      virtual auto write(const char* buffer, std::size_t length) -> int = 0;
 
       /**
        * @brief Read from socket.
@@ -69,7 +69,7 @@ namespace ntpc
        * @param[in] size Number of data to be read.
        * @retval -1 on error otherwise number of bytes read.
        */
-      virtual auto read(void* buffer, std::size_t size) -> int = 0;
+      virtual auto read(char* buffer, std::size_t size) -> int = 0;
 
       /**
        * @brief Read from socket.

@@ -47,7 +47,7 @@ namespace ntpc
   class NTPClient
   {
     public:
-      NTPClient(std::string_view host, std::uint16_t port = NTP_PORT);
+      explicit NTPClient(std::string_view host, std::uint16_t port = NTP_PORT);
       virtual ~NTPClient();
 
       /**
@@ -98,6 +98,6 @@ namespace ntpc
        * 
        * @retval long long
        */
-      auto seconds() -> long long;
+      auto seconds() const -> long long;
   };
 } // namespace ntpc

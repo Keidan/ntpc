@@ -62,12 +62,12 @@ auto UDPSocket::bind(std::string_view host, std::uint16_t port) -> bool
   if(INVALID_SOCKET == mFd)
     return false;
 
-  struct sockaddr_in addr;
+  sockaddr_in addr;
   addr.sin_addr.s_addr = getIPv4(host);
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   auto len = sizeof(addr);
-  if(!::bind(mFd, reinterpret_cast<sockaddr*>(&addr), len))
+  if(!::bind(mFd, reinterpret_cast<const sockaddr*>(&addr), static_cast<int>(len)))
   {
     close();
     return false;
@@ -119,11 +119,11 @@ auto UDPSocket::close() -> void
  * @param[in] size Number of data to write.
  * @retval -1 on error otherwise number of bytes written.
  */
-auto UDPSocket::write(const void* buffer, std::size_t length) -> int
+auto UDPSocket::write(const char* buffer, std::size_t length) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
-  return sendto(mFd, reinterpret_cast<const char*>(buffer), length, 0, (struct sockaddr*)&mAddr, sizeof(mAddr));
+  return sendto(mFd, buffer, length, 0, (sockaddr*)&mAddr, sizeof(mAddr));
 }
 
 /**
@@ -133,13 +133,13 @@ auto UDPSocket::write(const void* buffer, std::size_t length) -> int
  * @param[in] size Number of data to be read.
  * @retval -1 on error otherwise number of bytes read.
  */
-auto UDPSocket::read(void* buffer, std::size_t size) -> int
+auto UDPSocket::read(char* buffer, std::size_t size) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
   sockaddr_in from;
   socklen_t fromlen = sizeof(from);
-  auto reads = recvfrom(mFd, reinterpret_cast<char*>(buffer), size, 0, reinterpret_cast<sockaddr*>(&from), &fromlen);
+  auto reads = recvfrom(mFd, buffer, size, 0, reinterpret_cast<sockaddr*>(&from), &fromlen);
 
   if(reads > 0)
     mParsedPacketSize -= reads;
@@ -154,7 +154,7 @@ auto UDPSocket::read(void* buffer, std::size_t size) -> int
 auto UDPSocket::read() -> int
 {
   std::uint8_t b;
-  if(1 != read(reinterpret_cast<void*>(&b), sizeof(b)))
+  if(1 != read(reinterpret_cast<char*>(&b), sizeof(b)))
     return -1;
   return b;
 }
@@ -182,7 +182,11 @@ auto UDPSocket::available() -> int
 /**
  * @brief Flushes any existing packets.
  */
-auto UDPSocket::flush() -> void {}
+auto UDPSocket::flush() -> void
+{
+  while(0 != parsePacket())
+    /* flush any existing packets */;
+}
 
 /**
  * @brief Parse the packet read.
@@ -212,21 +216,20 @@ auto UDPSocket::parsePacket() -> int
  */
 auto UDPSocket::getIPv4(std::string_view host) -> std::uint32_t
 {
-  struct addrinfo hints;
-  struct addrinfo* result;
+  addrinfo hints;
+  addrinfo* result;
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;     /* Allow IPv4 or IPv6 */
   hints.ai_socktype = SOCK_STREAM; /* Datagram socket */
   hints.ai_flags = AI_CANONNAME;   /* For wildcard IP address */
   hints.ai_protocol = IPPROTO_TCP;
-  auto s = getaddrinfo(host.data(), nullptr, &hints, &result);
-  if(0 != s)
+  if(0 != getaddrinfo(host.data(), nullptr, &hints, &result))
     return 0;
   std::uint32_t ipv4 = 0;
   for(auto* rp = result; nullptr != rp; rp = rp->ai_next)
     if(AF_INET == rp->ai_family && SOCK_STREAM == rp->ai_socktype && IPPROTO_TCP == rp->ai_protocol)
     {
-      ipv4 = reinterpret_cast<struct sockaddr_in*>(rp->ai_addr)->sin_addr.s_addr;
+      ipv4 = reinterpret_cast<sockaddr_in*>(rp->ai_addr)->sin_addr.s_addr;
       break;
     }
 

@@ -97,7 +97,7 @@ auto NTPClient::forceRefresh(std::time_t& epoch) -> NTPClientResult
   if(Success == ret)
   {
     mLastUpdate = seconds() - (timeout / 1000);
-    if(mTransport->read(reinterpret_cast<void*>(&mPacket), packetSize) != static_cast<int>(packetSize))
+    if(mTransport->read(reinterpret_cast<char*>(&mPacket), packetSize) != static_cast<int>(packetSize))
       ret = Error;
     else
     {
@@ -128,7 +128,7 @@ auto NTPClient::sendPacket() -> bool
   mPacket.poll = 6;                   /* Polling Interval */
   mPacket.precision = 0xEC;           /* Approx. 10^-6 seconds */
   mPacket.refId = mTransport->ipv4(); /* Basic reference ID */
-  return static_cast<int>(size) == mTransport->write(&mPacket, size);
+  return static_cast<int>(size) == mTransport->write(reinterpret_cast<char*>(&mPacket), size);
 }
 
 /**
@@ -136,7 +136,7 @@ auto NTPClient::sendPacket() -> bool
  * 
  * @retval long long
  */
-auto NTPClient::seconds() -> long long
+auto NTPClient::seconds() const -> long long
 {
   auto now = std::chrono::system_clock::now();
   auto sec = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();

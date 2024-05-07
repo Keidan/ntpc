@@ -13,11 +13,10 @@ namespace ntpc
   {
     public:
 #ifdef _WIN32
-      UDPSocket();
+      explicit UDPSocket();
       virtual ~UDPSocket();
 #else
       UDPSocket() = default;
-      virtual ~UDPSocket() = default;
 #endif /* _WIN32 */
 
       /**
@@ -55,7 +54,7 @@ namespace ntpc
        * @param[in] size Number of data to write.
        * @retval -1 on error otherwise number of bytes written.
        */
-      auto write(const void* buffer, std::size_t length) -> int override;
+      auto write(const char* buffer, std::size_t length) -> int override;
 
       /**
        * @brief Read from socket.
@@ -64,7 +63,7 @@ namespace ntpc
        * @param[in] size Number of data to be read.
        * @retval -1 on error otherwise number of bytes read.
        */
-      auto read(void* buffer, std::size_t size) -> int override;
+      auto read(char* buffer, std::size_t size) -> int override;
 
       /**
        * @brief Read from socket.
