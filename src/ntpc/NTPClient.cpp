@@ -47,6 +47,7 @@ auto NTPClient::refresh(std::time_t& epoch, bool autowait) -> NTPClientResult
   {
     diff = std::abs(mUpdateInterval - diff);
     std::this_thread::sleep_for(std::chrono::seconds(diff));
+    return forceRefresh(epoch);
   }
   return NTPClientResult::Timeout; /* return false if update does not occur */
 }
@@ -97,10 +98,13 @@ auto NTPClient::forceRefresh(std::time_t& epoch) -> NTPClientResult
   if(Success == ret)
   {
     mLastUpdate = seconds() - (timeout / 1000);
-    if(mTransport->read(reinterpret_cast<std::byte*>(&mPacket), packetSize) != static_cast<int>(packetSize))
+    PacketBytes bytes;
+    bytes.reserve(packetSize);
+    if(mTransport->read(bytes.data(), packetSize) != static_cast<int>(packetSize))
       ret = Error;
     else
     {
+      memcpy(&mPacket, bytes.data(), packetSize);
       /* this is NTP time (seconds since Jan 1 1900): */
       epoch = static_cast<uint64_t>(ntohl(mPacket.transmitTsSec)) - NTP_TIMESTAMP_DELTA;
       mUpdateInterval = (0 == mPacket.poll) ? NTP_DEFAULT_POLL : (1 << mPacket.poll);
@@ -128,7 +132,10 @@ auto NTPClient::sendPacket() -> bool
   mPacket.poll = 6;                   /* Polling Interval */
   mPacket.precision = 0xEC;           /* Approx. 10^-6 seconds */
   mPacket.refId = mTransport->ipv4(); /* Basic reference ID */
-  return static_cast<int>(size) == mTransport->write(reinterpret_cast<const std::byte*>(&mPacket), size);
+  PacketBytes bytes;
+  bytes.reserve(size);
+  memcpy(bytes.data(), &mPacket, size);
+  return static_cast<int>(size) == mTransport->write(bytes.data(), size);
 }
 
 /**

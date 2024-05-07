@@ -123,7 +123,10 @@ auto UDPSocket::write(const std::byte* buffer, std::size_t length) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
-  return sendto(mFd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0, (sockaddr*)&mAddr, sizeof(mAddr));
+  sockaddr saddr;
+  auto slen = sizeof(mAddr);
+  memcpy(&saddr, &mAddr, slen);
+  return sendto(mFd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0, &saddr, slen);
 }
 
 /**
@@ -137,9 +140,9 @@ auto UDPSocket::read(std::byte* buffer, std::size_t size) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
-  sockaddr_in from;
-  socklen_t fromlen = sizeof(from);
-  auto reads = recvfrom(mFd, reinterpret_cast<char*>(buffer), static_cast<int>(size), 0, reinterpret_cast<sockaddr*>(&from), &fromlen);
+  sockaddr from;
+  socklen_t fromlen = sizeof(struct sockaddr_in);
+  auto reads = recvfrom(mFd, reinterpret_cast<char*>(buffer), static_cast<int>(size), 0, &from, &fromlen);
 
   if(reads > 0)
     mParsedPacketSize -= reads;

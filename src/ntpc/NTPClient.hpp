@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 #include <ctime>
+#include <cstddef>
+#include <vector>
 #include "ITransport.hpp"
 
 namespace ntpc
@@ -78,6 +80,7 @@ namespace ntpc
       auto forceRefresh(std::time_t& epoch) -> NTPClientResult;
 
     private:
+      using PacketBytes = std::vector<std::byte>; 
       std::string_view mHost{};
       std::uint16_t mPort = 0;
       NTPPacket mPacket{};
