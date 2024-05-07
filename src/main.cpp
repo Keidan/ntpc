@@ -72,7 +72,7 @@ auto main(int argc, char** argv) -> int
 #ifndef _WIN32
   struct sigaction sa;
 
-  std::memset(&sa, 0, sizeof(sigaction));
+  std::memset(&sa, 0, sizeof(struct sigaction));
   sa.sa_handler = &signalHook;
   sigaction(SIGINT, &sa, nullptr);
   sigaction(SIGTERM, &sa, nullptr);
