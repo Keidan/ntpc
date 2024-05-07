@@ -117,6 +117,9 @@ class TU:
     print(f'Total of tests \033[1m{self.res.get_count():02d}\033[0m')
     print(f'- \033[31mFAILED\033[0m \033[1m{self.res.get_failed():2d}\033[0m')
 
+  def is_success(self) -> bool:
+    return self.res.get_failed() == 0
+
 def main() -> int:
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--file', help='Binary file.')
@@ -131,7 +134,9 @@ def main() -> int:
   tu = TU(args.file)
   tu.generic()
   tu.print_end()
-  return 0
+  if tu.is_success():
+    return 0
+  return 1
   
 if __name__ == '__main__':
   sys.exit(main())
