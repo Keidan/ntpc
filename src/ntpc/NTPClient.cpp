@@ -7,7 +7,7 @@
 #include "NTPClient.hpp"
 #include <chrono>
 #include <thread>
-
+#include <cstring>
 /* Usings--------------------------------------------------------------------*/
 using namespace ntpc;
 
