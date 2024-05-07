@@ -1,0 +1,10 @@
+/**
+ * @file config.h
+ * @author Keidan (Kevin Billonneau)
+ * @copyright GNU GENERAL PUBLIC LICENSE Version 3
+ */
+#pragma once
+
+#define APP_NAME      "@NTPC_PROJECT_NAME@"
+#define VERSION_MAJOR @VERSION_MAJOR@
+#define VERSION_MINOR @VERSION_MINOR@

@@ -1,0 +1,51 @@
+{
+  "configurations": [
+    {
+      "name": "(MSVC) ntpc",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/ntpc.exe",
+      "args": [
+        "-a", "ntp.accelance.net",
+        "--count", "2"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+    },
+    {
+      "name": "(MSVC) ntpc python",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test.py",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "--file", "bin/ntpc.exe"
+      ],
+      "console": "integratedTerminal",
+    },
+    /* GDB */
+    {
+      "name": "(GDB) ntpc",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/ntpc",
+      "args": [
+        "-a", "ntp.accelance.net",
+        "-c", "-u"
+      ],
+      "cwd": "${workspaceFolder}",
+    },
+    {
+      "name": "(GDB) ntpc python",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/test.py",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "--file", "bin/ntpc"
+      ],
+      "console": "integratedTerminal",
+    },
+    
+  ]
+}
