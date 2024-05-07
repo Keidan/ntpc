@@ -31,7 +31,7 @@
       "program": "${workspaceFolder}/bin/ntpc",
       "args": [
         "-a", "ntp.accelance.net",
-        "-c", "-u"
+        "--count", "2"
       ],
       "cwd": "${workspaceFolder}",
     },

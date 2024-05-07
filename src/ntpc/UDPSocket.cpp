@@ -119,11 +119,11 @@ auto UDPSocket::close() -> void
  * @param[in] size Number of data to write.
  * @retval -1 on error otherwise number of bytes written.
  */
-auto UDPSocket::write(const char* buffer, std::size_t length) -> int
+auto UDPSocket::write(const std::byte* buffer, std::size_t length) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
-  return sendto(mFd, buffer, length, 0, (sockaddr*)&mAddr, sizeof(mAddr));
+  return sendto(mFd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0, (sockaddr*)&mAddr, sizeof(mAddr));
 }
 
 /**
@@ -133,13 +133,13 @@ auto UDPSocket::write(const char* buffer, std::size_t length) -> int
  * @param[in] size Number of data to be read.
  * @retval -1 on error otherwise number of bytes read.
  */
-auto UDPSocket::read(char* buffer, std::size_t size) -> int
+auto UDPSocket::read(std::byte* buffer, std::size_t size) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
   sockaddr_in from;
   socklen_t fromlen = sizeof(from);
-  auto reads = recvfrom(mFd, buffer, size, 0, reinterpret_cast<sockaddr*>(&from), &fromlen);
+  auto reads = recvfrom(mFd, reinterpret_cast<char*>(buffer), static_cast<int>(size), 0, reinterpret_cast<sockaddr*>(&from), &fromlen);
 
   if(reads > 0)
     mParsedPacketSize -= reads;
@@ -153,10 +153,10 @@ auto UDPSocket::read(char* buffer, std::size_t size) -> int
  */
 auto UDPSocket::read() -> int
 {
-  std::uint8_t b;
-  if(1 != read(reinterpret_cast<char*>(&b), sizeof(b)))
+  std::byte b;
+  if(1 != read(&b, sizeof(b)))
     return -1;
-  return b;
+  return static_cast<int>(b);
 }
 
 /**

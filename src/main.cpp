@@ -157,7 +157,8 @@ static auto handleMain(const Context& context) -> int
   do
   {
     processRefresh(client, loopWait, ret, context);
-    if((0 != context.count) && (++count >= context.count))
+    ++count;
+    if(0 != context.count && count >= context.count)
       g_loopExit = true;
   } while(!g_loopExit);
   return ret;

@@ -54,7 +54,7 @@ namespace ntpc
        * @param[in] size Number of data to write.
        * @retval -1 on error otherwise number of bytes written.
        */
-      auto write(const char* buffer, std::size_t length) -> int override;
+      auto write(const std::byte* buffer, std::size_t length) -> int override;
 
       /**
        * @brief Read from socket.
@@ -63,7 +63,7 @@ namespace ntpc
        * @param[in] size Number of data to be read.
        * @retval -1 on error otherwise number of bytes read.
        */
-      auto read(char* buffer, std::size_t size) -> int override;
+      auto read(std::byte* buffer, std::size_t size) -> int override;
 
       /**
        * @brief Read from socket.

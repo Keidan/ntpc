@@ -87,6 +87,10 @@ class TU:
     ret_code = self.exec_process([self.file, '-a', NTP_SERVER, '-p', 'azerty'], False)
     self.res.print(ret_code == 0, label)
 
+    label = self.format('Port error 4')
+    ret_code = self.exec_process([self.file, '-a', NTP_SERVER, '-p', '4294967295'], False)
+    self.res.print(ret_code == 0, label)
+
     label = self.format('Count error 1')
     ret_code = self.exec_process([self.file, '-a', NTP_SERVER, '--count', 'azer'], False)
     self.res.print(ret_code == 0, label)
@@ -104,7 +108,7 @@ class TU:
     self.res.print(ret_code != 0, label)
 
     label = self.format('Count')
-    ret_code = self.exec_process([self.file, '-a', NTP_SERVER, '--count', '1'], False)
+    ret_code = self.exec_process([self.file, '-a', NTP_SERVER, '--count', '0x1'], False)
     self.res.print(ret_code != 0, label)
 
     # Should fail because github actions don't have the necessary rights to change date and time
