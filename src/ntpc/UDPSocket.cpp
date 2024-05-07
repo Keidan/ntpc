@@ -62,17 +62,15 @@ auto UDPSocket::bind(std::string_view host, std::uint16_t port) -> bool
   if(INVALID_SOCKET == mFd)
     return false;
 
-  sockaddr_in addr;
-  addr.sin_addr.s_addr = getIPv4(host);
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(port);
-  auto len = sizeof(addr);
-  if(!::bind(mFd, reinterpret_cast<const sockaddr*>(&addr), static_cast<int>(len)))
+  mAddr.sin_addr.s_addr = getIPv4(host);
+  mAddr.sin_family = AF_INET;
+  mAddr.sin_port = htons(port);
+  auto [saddr, slen] = toSockAddr(mAddr);
+  if(!::bind(mFd, &saddr, slen))
   {
     close();
     return false;
   }
-  memcpy(&mAddr, &addr, len);
   return true;
 }
 
@@ -123,10 +121,8 @@ auto UDPSocket::write(const std::byte* buffer, std::size_t length) -> int
 {
   if(INVALID_SOCKET == mFd)
     return -1;
-  sockaddr saddr;
-  auto slen = sizeof(mAddr);
-  memcpy(&saddr, &mAddr, slen);
-  return sendto(mFd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0, &saddr, slen);
+  auto [saddr, slen] = toSockAddr(mAddr);
+  return static_cast<int>(sendto(mFd, reinterpret_cast<const char*>(buffer), static_cast<int>(length), 0, &saddr, slen));
 }
 
 /**
@@ -142,7 +138,7 @@ auto UDPSocket::read(std::byte* buffer, std::size_t size) -> int
     return -1;
   sockaddr from;
   socklen_t fromlen = sizeof(struct sockaddr_in);
-  auto reads = recvfrom(mFd, reinterpret_cast<char*>(buffer), static_cast<int>(size), 0, &from, &fromlen);
+  auto reads = static_cast<int>(recvfrom(mFd, reinterpret_cast<char*>(buffer), static_cast<int>(size), 0, &from, &fromlen));
 
   if(reads > 0)
     mParsedPacketSize -= reads;
@@ -238,4 +234,12 @@ auto UDPSocket::getIPv4(std::string_view host) -> std::uint32_t
 
   freeaddrinfo(result); /* No longer needed */
   return ipv4;
+}
+
+auto UDPSocket::toSockAddr(const sockaddr_in& sin) -> std::pair<sockaddr, int>
+{
+  sockaddr saddr;
+  int len = sizeof(sin);
+  memcpy(&saddr, &sin, len);
+  return std::make_pair(std::move(saddr), len);
 }

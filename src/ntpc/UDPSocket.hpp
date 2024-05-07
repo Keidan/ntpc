@@ -6,6 +6,7 @@
 #pragma once
 
 #include "ITransport.hpp"
+#include <utility>
 
 namespace ntpc
 {
@@ -110,5 +111,7 @@ namespace ntpc
        * @retval IPv4
        */
       static auto getIPv4(std::string_view host) -> std::uint32_t;
+
+      static auto toSockAddr(const sockaddr_in& sin) -> std::pair<sockaddr, int>;
   };
 } // namespace ntpc
