@@ -1,6 +1,11 @@
 
 if(DEFINED IS_DEBUG AND IS_DEBUG EQUAL 1 AND NOT DEFINED WIN32)
   # Create the gcov target. Run coverage tests with 'make gcov'
+  add_custom_target(gcov
+    COMMAND mkdir -p coverage
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  )
+
   add_custom_command(TARGET gcov
     COMMAND gcov -b ${CMAKE_SOURCE_DIR}/src/ntpc/NTPClient.cpp -o ${OBJECT_DIR}/src/ntpc/
     | grep -A 5 "NTPClient.cpp" > CoverageSummary.tmp
@@ -12,7 +17,7 @@ if(DEFINED IS_DEBUG AND IS_DEBUG EQUAL 1 AND NOT DEFINED WIN32)
   )
 
   add_custom_command(TARGET gcov
-  COMMAND echo "=================== GCOV ===================="
+    COMMAND echo "=================== GCOV ===================="
     COMMAND cat CoverageSummary.tmp
     COMMAND echo "-- Coverage files have been output to ${CMAKE_BINARY_DIR}/coverage"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coverage
