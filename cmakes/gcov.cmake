@@ -6,6 +6,7 @@ if(DEFINED IS_DEBUG AND IS_DEBUG EQUAL 1 AND NOT DEFINED WIN32)
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   )
 
+  set(OBJECT_DIR ${CMAKE_BINARY_DIR}/CMakeFiles/${CMAKE_PROJECT_NAME}.dir)
   add_custom_command(TARGET gcov
     COMMAND gcov -b ${CMAKE_SOURCE_DIR}/src/ntpc/NTPClient.cpp -o ${OBJECT_DIR}/src/ntpc/
     | grep -A 5 "NTPClient.cpp" > CoverageSummary.tmp
